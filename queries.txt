@@ -1,0 +1,43 @@
+1)How many free kick won by ronaldo vs messi.
+   val eventsInfo = spark.read.format("csv").option("header", "true").load("/Users/Fatima/Desktop/events.csv")
+    eventsInfo.createOrReplaceTempView("Events")
+    val ronaldoMessi = spark.sql("""Select player, count(player) AS FreeKickWon FROM Events WHERE (player IN ('cristiano ronaldo', 'lionel messi')) AND         event_type=8 GROUP BY player""")
+    ronaldoMessi.show()
+
+2)In which league and In which season players were subsituted?
+
+    val eventsInfo = spark.read.format("csv").option("header", "true").load("/Users/Fatima/Desktop/events.csv")
+    eventsInfo.createOrReplaceTempView("Events")
+    val metadataInfo = spark.read.format("csv").option("header", "true").load("/Users/Fatima/Desktop/ginf.csv")
+    metadataInfo.createOrReplaceTempView("Metadata")
+    val joinedRecords = spark.sql("""Select Events.event_type, Metadata.league,Metadata.Season FROM Events  JOIN Metadata ON Events.id_odsp = Metadata.id_odsp """)
+    joinedRecords.createOrReplaceTempView("JoinedRecords")
+    val maxCards = spark.sql("""Select league, Count(league),Count(Season) FROM JoinedRecords  WHERE event_type = 7  GROUP BY league """)
+   maxCards.show()
+ 
+3))In which league and In which season players have done most fauls?
+   val eventsInfo = spark.read.format("csv").option("header", "true").load("/Users/Fatima/Desktop/events.csv")
+    eventsInfo.createOrReplaceTempView("Events")
+    val metadataInfo = spark.read.format("csv").option("header", "true").load("/Users/Fatima/Desktop/ginf.csv")
+    metadataInfo.createOrReplaceTempView("Metadata")
+    val joinedRecords = spark.sql("""Select Events.event_type, Metadata.league,Metadata.Season FROM Events  JOIN Metadata ON Events.id_odsp = Metadata.id_odsp """)
+    joinedRecords.createOrReplaceTempView("JoinedRecords")
+  val maxCards = spark.sql("""Select league, event_type,Count(league),Count(Season),COUNT(event_type) FROM JoinedRecords  WHERE event_type = 3 GROUP BY league """)
+   maxCards.show()
+ 
+    
+4)Who was the player who came in a team and have worst number of scored?
+val csvDataFrame = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").load("/Users/Fatima/Desktop/events.csv") csvDataFrame.select($"id_odsp",$"player_in",$"is_goal",$"event_type").filter("event_type==7").filter("is_goal==0").groupBy("player_in","is_goal").count().orderBy(desc("count")).show()
+    
+5)Who was the player who have player mostly in Attacking half?
+val csvDataFrame = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").load("/Users/Fatima/Desktop/events.csv") 
+csvDataFrame.select($"id_odsp",$"player",$"is_goal",$"location").filter("location==1").groupBy("player").count().orderBy(desc("count")).show()
+
+
+
+
+	
+   
+
+
+			
